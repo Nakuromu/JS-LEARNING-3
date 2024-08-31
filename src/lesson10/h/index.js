@@ -2,14 +2,19 @@ import { fetchBreeds, fetchCatByBreed } from './cat_API';
 
 const selectEL = document.querySelector('.breed-select');
 const catInfoEl = document.querySelector('.cat-info');
+const loaderEl = document.querySelector('.loader')
+const errorEl = document.querySelector('.error')
 
-document.addEventListener('click', event => {
+document.addEventListener('DOMContentLoaded', event => {
     event.preventDefault();
     fetchBreeds()
-        .then(breeds => populateBreedSelect(breeds))
+        .then(breeds => {
+            selectEL.classList.remove('is-hiden')
+            loaderEl.classList.add('is-hiden')
+           return populateBreedSelect(breeds)})
         .catch(error => {
             console.error('Error fetching breeds:', error);
-            selectEL.innerHTML = '<option value="">Failed to load breeds</option>';
+            errorEl.classList.remove('is-hiden')
         });
 });
 
@@ -22,10 +27,12 @@ function populateBreedSelect(breeds) {
 }
 
 function handleSelectBreed(event) {
+    loaderEl.classList.remove('is-hiden')
     const selectedBreedId = event.target.value;
 
     fetchCatByBreed(selectedBreedId)
         .then(data => {
+            loaderEl.classList.add('is-hiden')
             const cat = data[0];
             const { name, description, temperament } = cat.breeds[0];
             const markup = `
@@ -39,7 +46,7 @@ function handleSelectBreed(event) {
         })
         .catch(error => {
             console.error('Error fetching cat info:', error);
-            catInfoEl.innerHTML = '<p>Something went wrong. Please try again later.</p>';
+            errorEl.classList.remove('is-hiden')
         });
 }
 
