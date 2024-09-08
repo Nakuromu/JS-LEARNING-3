@@ -6,13 +6,15 @@ const loadMoreBtnEl = document.querySelector('.load-more');
 
 const unsplashApi = new UnsplashApi()
 
-const handleSearchPhoto = event => {
+const handleSearchPhoto = async event => {
     event.preventDefault();
 
     const searchQuery = event.target.elements['user-search-query'].value;
     unsplashApi.query = searchQuery;
 
-    unsplashApi.fetchPhotos().then(data => {
+    try {
+        const {data} = await unsplashApi.fetchPhotos()
+
         if(unsplashApi.page === data.total_pages){
             remove;
         }
@@ -29,16 +31,18 @@ const handleSearchPhoto = event => {
 
         gallaryListEl.innerHTML = markup;
         loadMoreBtnEl.classList.remove('is-hiden')
-    }).catch(() => {
-        loadMoreBtnEl.classList.add('is-hiden');
-        gallaryListEl.textContent = 'Images not found';
-    })
+        
+    } catch (error) {
+        console.log(error)
+    }
 }
 
-const handleLoadMore = event => {
+const handleLoadMore = async event => {
     unsplashApi.page += 1;
 
-    unsplashApi.fetchPhotos().then(data => {
+    try {
+        const {data} = await unsplashApi.fetchPhotos();
+
         if(unsplashApi.page === data.total_pages){
             loadMoreBtnEl.classList.add('is-hiden');
         }
@@ -50,8 +54,11 @@ const handleLoadMore = event => {
     </li>`
         }).join('')
 
-        gallaryListEl.insertAdjacentHTML('beforeend', markup)
-    })
+        gallaryListEl.insertAdjacentHTML('beforeend', markup);
+        
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 searchFormEl.addEventListener('submit', handleSearchPhoto)
